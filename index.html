@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>英文副詞實驗室 | The Adverb Lab</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background-color: #f0f9ff;
+        }
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .adverb-tag {
+            transition: all 0.3s ease;
+        }
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+        .fade-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .hidden-adverb {
+            opacity: 0.1;
+            text-decoration: line-through;
+            transform: scale(0.9);
+        }
+        
+        /* Animation classes for the running man */
+        @keyframes run {
+            0% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes run-fast {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(20px) skewX(-10deg); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        @keyframes tired {
+            0% { opacity: 1; transform: translateY(0); }
+            50% { opacity: 0.7; transform: translateY(2px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        .animate-run {
+            animation: run 1s infinite;
+        }
+        .animate-run-fast {
+            animation: run-fast 0.3s infinite;
+        }
+        .animate-tired {
+            animation: tired 2s infinite ease-in-out;
+        }
+        .spotlight {
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.4) 100%);
+        }
+    </style>
+</head>
+<body class="text-gray-700">
+
+    <!-- Header -->
+    <header class="bg-blue-600 text-white p-6 shadow-lg">
+        <div class="max-w-4xl mx-auto text-center">
+            <h1 class="text-3xl md:text-4xl font-bold mb-2">🧪 英文副詞實驗室</h1>
+            <p class="text-blue-100 text-lg">為什麼副詞是英文句子裡的「調皮鬼」？動手玩玩看就知道！</p>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto p-4 md:p-8 space-y-12">
+
+        <!-- Concept 1: The Decorator -->
+        <section id="decorator-section" class="bg-white rounded-2xl p-6 md:p-8 shadow-md border-l-8 border-yellow-400">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <span class="text-3xl">🎨</span> 概念一：副詞是句子的「裝飾品」
+                </h2>
+                <p class="mt-2 text-gray-600">
+                    記得我說過嗎？副詞就像幫房子加上裝潢。下面有一個無聊的句子：「<span class="font-bold text-black">He runs (他跑步)</span>」。<br>
+                    試著點擊按鈕，幫它加上各種「裝飾品」吧！
+                </p>
+            </div>
+
+            <!-- Interactive Stage -->
+            <div class="bg-gray-100 rounded-xl p-6 mb-6 relative overflow-hidden transition-all duration-500" id="scene-bg">
+                <!-- Spotlight Layer for Focus Adverb -->
+                <div id="spotlight-layer" class="absolute inset-0 z-10 pointer-events-none opacity-0 transition-opacity duration-500 spotlight"></div>
+
+                <!-- Visual Feedback Area -->
+                <div class="h-40 flex items-center justify-center mb-4 relative z-0">
+                    <!-- Main Character -->
+                    <div id="character" class="text-6xl transition-all duration-500 animate-run z-20">🏃</div>
+                    
+                    <!-- Secondary Character (for Conjunctive) -->
+                    <div id="second-character" class="text-6xl absolute right-10 opacity-0 transition-all duration-500 transform translate-x-10 z-20">🥵</div>
+                    
+                    <!-- Bridge/Divider (for Conjunctive) -->
+                    <div id="bridge" class="absolute h-full w-1 bg-gray-300 opacity-0 transition-all duration-500 z-10"></div>
+
+                    <!-- Environment -->
+                    <div id="environment" class="absolute inset-0 z-0 opacity-20 pointer-events-none transition-all duration-500 flex justify-between items-center text-6xl px-4"></div>
+                </div>
+
+                <!-- Sentence Display -->
+                <div class="text-center bg-white p-4 rounded-lg shadow-sm border border-gray-200 relative z-20">
+                    <div id="sentence-display" class="text-lg md:text-2xl font-bold transition-all duration-300 leading-relaxed">
+                        He runs.
+                    </div>
+                    <div id="translation-display" class="text-gray-500 mt-2 text-sm md:text-base">
+                        他跑步。
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls (Expanded Grid) -->
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2 text-sm">
+                <!-- 1. Frequency -->
+                <button onclick="toggleAdverb('frequency')" id="btn-frequency" class="p-2 rounded-lg border-2 border-orange-200 hover:bg-orange-50 transition-colors text-orange-700 font-bold">
+                    1.多常?<br><span class="font-normal text-xs">頻率</span>
+                </button>
+                <!-- 2. Focus -->
+                <button onclick="toggleAdverb('focus')" id="btn-focus" class="p-2 rounded-lg border-2 border-teal-200 hover:bg-teal-50 transition-colors text-teal-700 font-bold">
+                    2.限制<br><span class="font-normal text-xs">其他/範圍</span>
+                </button>
+                <!-- 3. Degree -->
+                <button onclick="toggleAdverb('degree')" id="btn-degree" class="p-2 rounded-lg border-2 border-purple-200 hover:bg-purple-50 transition-colors text-purple-700 font-bold">
+                    3.語氣<br><span class="font-normal text-xs">程度</span>
+                </button>
+                <!-- 4. Manner -->
+                <button onclick="toggleAdverb('manner')" id="btn-manner" class="p-2 rounded-lg border-2 border-red-200 hover:bg-red-50 transition-colors text-red-700 font-bold">
+                    4.怎樣?<br><span class="font-normal text-xs">情狀</span>
+                </button>
+                <!-- 5. Place -->
+                <button onclick="toggleAdverb('place')" id="btn-place" class="p-2 rounded-lg border-2 border-green-200 hover:bg-green-50 transition-colors text-green-700 font-bold">
+                    5.哪裡?<br><span class="font-normal text-xs">地方</span>
+                </button>
+                <!-- 6. Time -->
+                <button onclick="toggleAdverb('time')" id="btn-time" class="p-2 rounded-lg border-2 border-blue-200 hover:bg-blue-50 transition-colors text-blue-700 font-bold">
+                    6.何時?<br><span class="font-normal text-xs">時間</span>
+                </button>
+                <!-- 7. Conjunctive -->
+                <button onclick="toggleAdverb('conjunctive')" id="btn-conjunctive" class="p-2 rounded-lg border-2 border-indigo-200 hover:bg-indigo-50 transition-colors text-indigo-700 font-bold col-span-2 md:col-span-4 lg:col-span-1">
+                    7.連接<br><span class="font-normal text-xs">連接詞</span>
+                </button>
+            </div>
+            
+            <div class="mt-4 text-center text-xs md:text-sm text-gray-400 bg-yellow-50 p-2 rounded">
+                💡 小秘訣：試試看同時點選 <b>「連接」</b>，句子會變長喔！觀察 <b>However</b> 前後的標點符號。
+            </div>
+        </section>
+
+        <!-- Concept 2: The Delete Test (Updated with Explanation) -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 shadow-md border-l-8 border-red-400">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
+                <span class="text-3xl">🧠</span> 概念二：副詞的真面目與破解法
+            </h2>
+
+            <!-- New Explanation Block -->
+            <div class="grid md:grid-cols-3 gap-6 mb-8">
+                <!-- Point 1: Storage Box (Updated Style) -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div class="text-3xl mb-2">📦</div>
+                    <h3 class="font-bold text-gray-800 mb-2">1. 為什麼這麼複雜？</h3>
+                    <div class="text-sm text-gray-700 leading-relaxed">
+                        <p class="mb-2 font-bold text-gray-900">簡單解釋：因為它是「收納箱」。</p>
+                        <ul class="list-disc pl-4 space-y-1">
+                            <li>名詞是<b>「主角」</b>(人、事、物)。</li>
+                            <li>動詞是<b>「動作」</b>。</li>
+                            <li>形容詞是<b>「主角的衣服」</b>。</li>
+                            <li>副詞呢？它是<b>「剩下的所有細節」</b>！</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Point 2: Decoration (Updated Content) -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div class="text-3xl mb-2">🏺</div>
+                    <h3 class="font-bold text-gray-800 mb-2">2. 為什麼位置亂跑？</h3>
+                    <div class="text-sm text-gray-600 leading-relaxed">
+                        <p class="mb-2 font-bold text-gray-700">想像你在佈置房間：</p>
+                        <ul class="space-y-1 mb-2">
+                            <li>🛏️ <b>床 (名詞)</b>：位置通常很固定 (靠牆)。</li>
+                            <li>🪟 <b>窗戶 (名詞)</b>：位置固定。</li>
+                            <li>🏺 <b>花瓶 (副詞)</b>：你可以放桌上、放窗邊、放地上，隨你高興，看你想強調哪裡。</li>
+                        </ul>
+                        <p>因為它是用來<b>修飾氣氛</b>的，所以位置比較靈活。</p>
+                    </div>
+                </div>
+
+                <!-- Point 3: 3D Glasses (Detailed) -->
+                <div class="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div class="text-3xl mb-2">👓</div>
+                    <h3 class="font-bold text-gray-800 mb-2">3. 怎麼判斷？(3D 眼鏡)</h3>
+                    <div class="text-sm text-gray-600 leading-relaxed">
+                        <p class="mb-2 text-xs">如果沒有副詞，世界是平淡的：<br><span class="font-mono bg-white px-1 border rounded">我吃飯 (I eat.)</span> ➡ 很無聊🥱</p>
+                        <p class="mb-1 text-xs font-bold text-gray-500">戴上 3D 眼鏡後：</p>
+                        <ul class="space-y-1 text-xs mb-3">
+                            <li class="flex items-center"><span class="w-4 mr-1">⏰</span>加時間感 → 我 <b class="text-blue-600 mx-1">現在</b> 吃飯</li>
+                            <li class="flex items-center"><span class="w-4 mr-1">📍</span>加空間感 → 我 <b class="text-green-600 mx-1">在廚房</b> 吃飯</li>
+                            <li class="flex items-center"><span class="w-4 mr-1">😄</span>加情緒 → 我 <b class="text-red-600 mx-1">開心地</b> 吃飯</li>
+                            <li class="flex items-center"><span class="w-4 mr-1">🔥</span>加程度 → 我 <b class="text-purple-600 mx-1">非常</b> 想吃飯</li>
+                        </ul>
+                        <div class="border-t border-gray-300 pt-2 text-xs font-bold text-indigo-700">
+                            結論：回答「何時？何地？如何？多像？」的字，就是副詞。
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Delete Test Interactive -->
+            <div class="border-t border-gray-200 pt-6">
+                <div class="flex justify-between items-center mb-4">
+                    <div>
+                        <h3 class="font-bold text-lg text-red-600">🗑️ 一句話破解法 (Delete Test)</h3>
+                        <p class="text-sm text-gray-500">既然它是「裝飾品」，那把它拿掉應該沒關係吧？</p>
+                    </div>
+                    
+                    <label class="flex items-center cursor-pointer select-none">
+                        <span class="mr-2 text-sm font-bold text-gray-500">拿掉 3D 眼鏡</span>
+                        <div class="relative">
+                            <input type="checkbox" id="delete-toggle" class="sr-only" onchange="toggleDeleteTest()">
+                            <div class="w-12 h-7 bg-gray-300 rounded-full shadow-inner transition-colors" id="toggle-bg"></div>
+                            <div class="dot absolute w-5 h-5 bg-white rounded-full shadow left-1 top-1 transition transition-transform" id="toggle-dot"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <div class="bg-slate-800 text-white p-6 rounded-xl relative">
+                    <div class="text-2xl leading-relaxed font-mono" id="test-sentence">
+                        <span class="text-white">I</span> 
+                        <span class="text-orange-300 transition-all duration-500 adverb-target" data-type="freq">usually</span> 
+                        <span class="text-white">eat</span> 
+                        <span class="text-white">dinner</span> 
+                        <span class="text-red-300 transition-all duration-500 adverb-target" data-type="manner">happily</span> 
+                        <span class="text-green-300 transition-all duration-500 adverb-target" data-type="place">at home</span> 
+                        <span class="text-blue-300 transition-all duration-500 adverb-target" data-type="time">every day</span>.
+                    </div>
+                    
+                    <div class="mt-6 text-sm text-slate-400 border-t border-slate-600 pt-3" id="test-explanation">
+                        👆 <b>試試看打開開關：</b><br>
+                        你會發現只剩下 "I eat dinner." (我吃晚餐)。句子還是對的！<br>
+                        這證明剩下的 <span class="text-orange-300">頻率</span>、<span class="text-red-300">情緒</span>、<span class="text-green-300">地點</span>、<span class="text-blue-300">時間</span> 全部都是「3D 特效（副詞）」。
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Concept 3: The Storage Box (Categorization) -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 shadow-md border-l-8 border-blue-400">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
+                <span class="text-3xl">📦</span> 概念三：副詞收納箱大解密
+            </h2>
+            <p class="mb-6 text-gray-600">
+                既然知道副詞是「收納箱」，那我們來看看這個箱子裡到底裝了哪些種類的雜物：
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div class="bg-orange-50 p-4 rounded-xl border border-orange-100 card-hover">
+                    <div class="font-bold text-orange-600 mb-2">📊 頻率副詞 (Frequency)</div>
+                    <div class="text-sm text-gray-600 mb-2">回答：多常做？(How often)</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700">always (總是)<br>seldom (很少)</div>
+                </div>
+                <div class="bg-purple-50 p-4 rounded-xl border border-purple-100 card-hover">
+                    <div class="font-bold text-purple-600 mb-2">🌡️ 程度副詞 (Degree)</div>
+                    <div class="text-sm text-gray-600 mb-2">回答：什麼程度？(Level)</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700">very (非常)<br>too (太...)</div>
+                </div>
+                <div class="bg-red-50 p-4 rounded-xl border border-red-100 card-hover">
+                    <div class="font-bold text-red-600 mb-2">🤔 情態副詞 (Manner)</div>
+                    <div class="text-sm text-gray-600 mb-2">回答：如何做？(How)</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700">slowly (慢慢地)<br>well (很好地)</div>
+                </div>
+                <div class="bg-blue-50 p-4 rounded-xl border border-blue-100 card-hover">
+                    <div class="font-bold text-blue-600 mb-2">⏰ 時間副詞 (Time)</div>
+                    <div class="text-sm text-gray-600 mb-2">回答：何時做？(When)</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700">now (現在)<br>yesterday (昨天)</div>
+                </div>
+                <div class="bg-green-50 p-4 rounded-xl border border-green-100 card-hover">
+                    <div class="font-bold text-green-600 mb-2">📍 地方副詞 (Place)</div>
+                    <div class="text-sm text-gray-600 mb-2">回答：在哪做？(Where)</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700">here (這裡)<br>everywhere (到處)</div>
+                </div>
+                 <div class="bg-teal-50 p-4 rounded-xl border border-teal-100 card-hover">
+                    <div class="font-bold text-teal-600 mb-2">🎯 其他/限制副詞 (Focus)</div>
+                    <div class="text-sm text-gray-600 mb-2">表示：限制或範圍</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700">only (只有)<br>just (只是)</div>
+                </div>
+                <!-- 7. Conjunctive (Indigo) -->
+                <div class="bg-indigo-50 p-4 rounded-xl border border-indigo-100 card-hover md:col-span-2 lg:col-span-3">
+                    <div class="font-bold text-indigo-600 mb-2">🌉 連接副詞 (Conjunctive)</div>
+                    <div class="text-sm text-gray-600 mb-2">功能：連接前後文 (Link ideas)</div>
+                    <div class="bg-white p-2 rounded text-sm font-mono text-gray-700 flex gap-4">
+                        <span>however (然而)</span>
+                        <span>therefore (因此)</span>
+                        <span>moreover (此外)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Supplementary: Examples (Updated with ALL categories) -->
+        <section class="bg-white rounded-2xl p-6 md:p-8 shadow-md border-l-8 border-indigo-400">
+            <h2 class="text-2xl font-bold text-gray-800 flex items-center gap-2 mb-6">
+                <span class="text-3xl">📖</span> 實戰例句與補充大全
+            </h2>
+            
+            <div class="grid gap-8">
+                
+                <!-- 1. Frequency (Orange) - UPDATED with Verb Comparison & Sometimes -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-orange-200 pb-2">
+                        <span class="text-2xl">📊</span>
+                        <h3 class="text-xl font-bold text-orange-700">1. 頻率副詞 (Frequency)</h3>
+                        <span class="text-xs text-orange-600 bg-orange-200 px-2 py-1 rounded font-bold shadow-sm">口訣：Be 後 動 前</span>
+                    </div>
+                    <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 space-y-4">
+                        <!-- Example 1: Action Verb -->
+                         <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                            <div class="bg-orange-100 text-orange-800 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                一般動詞 (放前面)
+                            </div>
+                            <div class="flex-1 bg-white p-3 rounded-lg shadow-sm border border-orange-100 w-full">
+                                <div class="text-lg font-mono mb-1 text-gray-800">I <span class="text-orange-600 font-bold border-b-2 border-orange-600">seldom</span> <span class="text-gray-900 font-bold">get up</span> at 7.</div>
+                                <div class="text-sm text-gray-600">我「很少」在七點起床。(擋在動作前面)</div>
+                            </div>
+                        </div>
+                        
+                        <!-- Example 2: Be Verb -->
+                        <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                            <div class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                Be 動詞 (放後面)
+                            </div>
+                            <div class="flex-1 bg-white p-3 rounded-lg shadow-sm border border-blue-100 w-full">
+                                <div class="text-lg font-mono mb-1 text-gray-800">He <span class="text-gray-900 font-bold">is</span> <span class="text-orange-600 font-bold border-b-2 border-orange-600">always</span> happy.</div>
+                                <div class="text-sm text-gray-600">他「總是」很快樂。(跟在 Be 動詞後面)</div>
+                            </div>
+                        </div>
+
+                         <!-- Example 3: Sometimes (Back) - NEW -->
+                         <div class="flex flex-col md:flex-row gap-4 items-start md:items-center mt-4 pt-4 border-t border-orange-100 border-dashed">
+                            <div class="bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                                ⭐ 特殊用法 (放句尾)
+                            </div>
+                            <div class="flex-1 bg-white p-3 rounded-lg shadow-sm border border-yellow-100 w-full">
+                                <div class="text-lg font-mono mb-1 text-gray-800">I get up at 7 <span class="text-orange-600 font-bold border-b-2 border-orange-600">sometimes</span>.</div>
+                                <div class="text-sm text-gray-600">我「有時候」七點起床。(Sometimes 很隨和，放句尾也可以！)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Manner (Red) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-red-200 pb-2">
+                        <span class="text-2xl">🤔</span>
+                        <h3 class="text-xl font-bold text-red-700">2. 情態副詞 (Manner)</h3>
+                        <span class="text-xs text-red-500 bg-red-100 px-2 py-1 rounded">描述動作狀態</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-white border-l-4 border-red-400 p-3 shadow-sm hover:bg-red-50 transition-colors flex justify-between items-center">
+                            <div>
+                                <p class="font-mono text-lg text-gray-800">He drives <span class="text-red-600 font-bold">carefully</span>.</p>
+                                <p class="text-gray-600 text-sm">他開車很「小心」</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3. Time (Blue) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-blue-200 pb-2">
+                        <span class="text-2xl">⏰</span>
+                        <h3 class="text-xl font-bold text-blue-700">3. 時間副詞 (Time)</h3>
+                        <span class="text-xs text-blue-500 bg-blue-100 px-2 py-1 rounded">通常放句尾</span>
+                    </div>
+                    <div class="space-y-3">
+                         <div class="bg-white border-l-4 border-blue-400 p-3 shadow-sm hover:bg-blue-50 transition-colors">
+                            <p class="font-mono text-lg text-gray-800">I saw him <span class="text-blue-600 font-bold">yesterday</span>.</p>
+                            <p class="text-gray-600 text-sm">我「昨天」看到他</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Place (Green) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-green-200 pb-2">
+                        <span class="text-2xl">📍</span>
+                        <h3 class="text-xl font-bold text-green-700">4. 地方副詞 (Place)</h3>
+                        <span class="text-xs text-green-500 bg-green-100 px-2 py-1 rounded">表示地點</span>
+                    </div>
+                    <div class="space-y-3">
+                         <div class="bg-white border-l-4 border-green-400 p-3 shadow-sm hover:bg-green-50 transition-colors">
+                            <p class="font-mono text-lg text-gray-800">Come <span class="text-green-600 font-bold">here</span>.</p>
+                            <p class="text-gray-600 text-sm">過來「這裡」</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Degree (Purple) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-purple-200 pb-2">
+                        <span class="text-2xl">🌡️</span>
+                        <h3 class="text-xl font-bold text-purple-700">5. 程度副詞 (Degree)</h3>
+                        <span class="text-xs text-purple-500 bg-purple-100 px-2 py-1 rounded">加強語氣</span>
+                    </div>
+                    <div class="space-y-3">
+                         <div class="bg-white border-l-4 border-purple-400 p-3 shadow-sm hover:bg-purple-50 transition-colors">
+                            <p class="font-mono text-lg text-gray-800">It is <span class="text-purple-600 font-bold">very</span> hot.</p>
+                            <p class="text-gray-600 text-sm">天氣「非常」熱</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Focus/Others (Teal) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-teal-200 pb-2">
+                        <span class="text-2xl">🎯</span>
+                        <h3 class="text-xl font-bold text-teal-700">6. 其他/限制副詞 (Focus)</h3>
+                        <span class="text-xs text-teal-500 bg-teal-100 px-2 py-1 rounded">限制與強調</span>
+                    </div>
+                    <div class="space-y-3">
+                         <div class="bg-white border-l-4 border-teal-400 p-3 shadow-sm hover:bg-teal-50 transition-colors">
+                            <p class="font-mono text-lg text-gray-800">I <span class="text-teal-600 font-bold">only</span> had coffee.</p>
+                            <p class="text-gray-600 text-sm">我「只」喝了咖啡</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. Conjunctive (Indigo) -->
+                <div>
+                    <div class="flex items-center gap-2 mb-3 border-b border-indigo-200 pb-2">
+                        <span class="text-2xl">🌉</span>
+                        <h3 class="text-xl font-bold text-indigo-700">7. 連接副詞 (Conjunctive)</h3>
+                        <span class="text-xs text-indigo-500 bg-indigo-100 px-2 py-1 rounded">表示轉折與邏輯</span>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-white border-l-4 border-indigo-400 p-3 shadow-sm hover:bg-indigo-50 transition-colors">
+                            <p class="font-mono text-lg text-gray-800">I wanted to buy it<span class="text-red-500 font-bold">;</span> <span class="text-indigo-600 font-bold">however</span><span class="text-red-500 font-bold">,</span> I had no money.</p>
+                            <p class="text-gray-600 text-sm">我想買；「然而」，我沒有錢。<br><span class="text-xs text-red-400">(注意標點符號：前面分號，後面逗號)</span></p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="text-center p-8 text-gray-500 text-sm">
+        <p>Made with 💡 for learning Adverbs.</p>
+    </footer>
+
+    <script>
+        // --- Logic for Section 1: The Decorator ---
+        
+        const state = {
+            frequency: false,
+            focus: false,    // NEW
+            degree: false,
+            manner: false,
+            place: false,
+            time: false,
+            conjunctive: false // NEW
+        };
+
+        const adverbs = {
+            frequency: { en: "always", ch: "總是", color: "text-orange-600" },
+            focus: { en: "only", ch: "只有", color: "text-teal-600" }, // NEW
+            degree: { en: "really", ch: "真的", color: "text-purple-600" },
+            manner: { en: "quickly", ch: "很快地", color: "text-red-600" },
+            place: { en: "outside", ch: "在外面", color: "text-green-600" },
+            time: { en: "today", ch: "今天", color: "text-blue-600" },
+            conjunctive: { en: "; however,", ch: "；然而，", color: "text-indigo-600" } // NEW
+        };
+
+        function toggleAdverb(type) {
+            state[type] = !state[type];
+            
+            const btn = document.getElementById(`btn-${type}`);
+            let ringColor = 'ring-gray-200';
+            let bgColor = 'bg-gray-200';
+
+            // Mapping types to their Tailwind colors for Active State
+            if(type === 'frequency') { ringColor = 'ring-orange-200'; bgColor = 'bg-orange-200'; }
+            if(type === 'focus') { ringColor = 'ring-teal-200'; bgColor = 'bg-teal-200'; }
+            if(type === 'degree') { ringColor = 'ring-purple-200'; bgColor = 'bg-purple-200'; }
+            if(type === 'manner') { ringColor = 'ring-red-200'; bgColor = 'bg-red-200'; }
+            if(type === 'place') { ringColor = 'ring-green-200'; bgColor = 'bg-green-200'; }
+            if(type === 'time') { ringColor = 'ring-blue-200'; bgColor = 'bg-blue-200'; }
+            if(type === 'conjunctive') { ringColor = 'ring-indigo-200'; bgColor = 'bg-indigo-200'; }
+
+            if (state[type]) {
+                btn.classList.add('ring-4', 'ring-offset-2', 'bg-opacity-20');
+                btn.classList.add(bgColor);
+            } else {
+                btn.classList.remove('ring-4', 'ring-offset-2', 'bg-opacity-20');
+                btn.classList.remove('bg-orange-200', 'bg-teal-200', 'bg-purple-200', 'bg-red-200', 'bg-green-200', 'bg-blue-200', 'bg-indigo-200');
+            }
+
+            updateSentence();
+            updateVisuals();
+        }
+
+        function updateSentence() {
+            // Base Sentence Structure: He runs.
+            // Complex Order with all Adverbs:
+            // Subject + [Frequency] + [Focus] + [Degree] + Verb + [Manner] + [Place] + [Time] + [Conjunctive + Clause]
+            
+            let parts = ['He'];
+            
+            // 1. Frequency (usually before verb)
+            if (state.frequency) parts.push(`<span class="${adverbs.frequency.color} font-bold">${adverbs.frequency.en}</span>`);
+            
+            // 2. Focus (e.g., only) - placement varies, but before verb works
+            if (state.focus) parts.push(`<span class="${adverbs.focus.color} font-bold">${adverbs.focus.en}</span>`);
+            
+            // 3. Degree (e.g., really)
+            if (state.degree) parts.push(`<span class="${adverbs.degree.color} font-bold">${adverbs.degree.en}</span>`);
+            
+            parts.push('runs');
+            
+            // 4. Manner (after verb)
+            if (state.manner) parts.push(`<span class="${adverbs.manner.color} font-bold">${adverbs.manner.en}</span>`);
+            
+            // 5. Place
+            if (state.place) parts.push(`<span class="${adverbs.place.color} font-bold">${adverbs.place.en}</span>`);
+            
+            // 6. Time
+            if (state.time) parts.push(`<span class="${adverbs.time.color} font-bold">${adverbs.time.en}</span>`);
+
+            // 7. Conjunctive (Needs a bridge and a second clause)
+            // Example: He runs...; however, he is tired.
+            let conjunctivePart = "";
+            if (state.conjunctive) {
+                conjunctivePart = ` <span class="${adverbs.conjunctive.color} font-bold">${adverbs.conjunctive.en}</span> he is tired`;
+            }
+
+            // Chinese Construction
+            let chParts = [];
+            if (state.time) chParts.push(`<span class="${adverbs.time.color} font-bold">${adverbs.time.ch}</span>`);
+            if (state.place) chParts.push(`<span class="${adverbs.place.color} font-bold">${adverbs.place.ch}</span>`);
+            chParts.push('他');
+            if (state.frequency) chParts.push(`<span class="${adverbs.frequency.color} font-bold">${adverbs.frequency.ch}</span>`);
+            if (state.focus) chParts.push(`<span class="${adverbs.focus.color} font-bold">${adverbs.focus.ch}</span>`);
+            if (state.degree) chParts.push(`<span class="${adverbs.degree.color} font-bold">${adverbs.degree.ch}</span>`);
+            if (state.manner) chParts.push(`<span class="${adverbs.manner.color} font-bold">${adverbs.manner.ch}</span>`);
+            chParts.push('跑步');
+            
+            if (state.conjunctive) {
+                chParts.push(`<span class="${adverbs.conjunctive.color} font-bold">${adverbs.conjunctive.ch}</span>他很累`);
+            }
+
+            document.getElementById('sentence-display').innerHTML = parts.join(' ') + conjunctivePart + ".";
+            document.getElementById('translation-display').innerHTML = chParts.join('') + "。";
+        }
+
+        function updateVisuals() {
+            const char = document.getElementById('character');
+            const bg = document.getElementById('scene-bg');
+            const env = document.getElementById('environment');
+            const spotlight = document.getElementById('spotlight-layer');
+            const secondChar = document.getElementById('second-character');
+            const bridge = document.getElementById('bridge');
+
+            // Manner Effect: Speed
+            if (state.manner) {
+                char.classList.remove('animate-run');
+                char.classList.add('animate-run-fast');
+            } else {
+                char.classList.remove('animate-run-fast');
+                char.classList.add('animate-run');
+            }
+
+            // Degree Effect: Size
+            char.style.transform = state.degree ? "scale(1.5)" : "scale(1)";
+
+            // Frequency Effect: Background Ring
+            if (state.frequency) {
+                bg.classList.add('ring-4', 'ring-orange-100', 'ring-inset');
+            } else {
+                bg.classList.remove('ring-4', 'ring-orange-100', 'ring-inset');
+            }
+
+            // Focus Effect: Spotlight
+            if (state.focus) {
+                spotlight.style.opacity = "1";
+            } else {
+                spotlight.style.opacity = "0";
+            }
+
+            // Place Effect: Background Color/Emoji
+            if (state.place) {
+                bg.style.backgroundColor = "#dcfce7"; // Light green
+                env.innerHTML = "🌳 🌳 🌳";
+            } else {
+                bg.style.backgroundColor = "#f3f4f6"; // Gray
+                env.innerHTML = "";
+            }
+
+            // Time Effect: Sun/Moon
+            if (state.time) {
+               if (!document.getElementById('sun-icon')) {
+                   const sun = document.createElement('div');
+                   sun.id = 'sun-icon';
+                   sun.innerText = '☀️';
+                   sun.className = 'absolute top-2 right-2 text-4xl animate-pulse';
+                   bg.appendChild(sun);
+               }
+            } else {
+                const sun = document.getElementById('sun-icon');
+                if (sun) sun.remove();
+            }
+
+            // Conjunctive Effect: Second Character & Bridge
+            if (state.conjunctive) {
+                secondChar.style.opacity = "1";
+                secondChar.style.transform = "translateX(0)";
+                bridge.style.opacity = "1";
+                // Add tired animation to second char
+                secondChar.classList.add('animate-tired');
+            } else {
+                secondChar.style.opacity = "0";
+                secondChar.style.transform = "translateX(40px)";
+                bridge.style.opacity = "0";
+                secondChar.classList.remove('animate-tired');
+            }
+        }
+
+        // --- Logic for Section 2: Delete Test ---
+        function toggleDeleteTest() {
+            const checkbox = document.getElementById('delete-toggle');
+            const targets = document.querySelectorAll('.adverb-target');
+            const bg = document.getElementById('toggle-bg');
+            const dot = document.getElementById('toggle-dot');
+
+            if (checkbox.checked) {
+                targets.forEach(el => el.classList.add('hidden-adverb'));
+                bg.classList.remove('bg-gray-400');
+                bg.classList.add('bg-green-500');
+                dot.style.transform = 'translateX(100%)';
+            } else {
+                targets.forEach(el => el.classList.remove('hidden-adverb'));
+                bg.classList.add('bg-gray-400');
+                bg.classList.remove('bg-green-500');
+                dot.style.transform = 'translateX(0)';
+            }
+        }
+    </script>
+</body>
+</html>
